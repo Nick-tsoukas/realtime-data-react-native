@@ -3,35 +3,48 @@ import { View, Text, StyleSheet, TextInput, Button } from 'react-native'
 import symbolicateStackTrace from 'react-native/Libraries/Core/Devtools/symbolicateStackTrace';
 import io from 'socket.io-client';
 
-const App = () => {
-  const [value, onChangeText] = useState('');
 
-  const log = async () => {
-    await console.log(value);
-    onChangeText('')
+
+export default class App extends Component {
+  constructor(props){
+    super(props);
+    this.state = {
+      message: ''
+    }
+    this.sendMessage = this.sendMessage.bind(this);
   }
 
-  
-    useEffect(() => {
-      const socket = io("http://6cc239e13b44.ngrok.io");
-      console.log('this is the use effect hook')
-    },[]);
+  componentDidMount(){
+    this.socket = io("http://6cc239e13b44.ngrok.io");
+  }
 
+   sendMessage = () => {
+     console.log(this.state.message)
+     this.socket.emit('message', this.state.message);
+     this.setState({message: ''})
+  }
+
+  render(){
     return(
       <View style={styles.screen}>
+        <Text>Hello world</Text>
+
         <TextInput
-          style={{ height: 40, width:100, borderColor: 'black', marginBottom:20, borderWidth: 1 }}
-          onChangeText={text => onChangeText(text)}
-          value={value}
+        style={{minWidth: 300, borderColor: 'black', borderWidth: 1}}
+        value={this.state.message}
+        autoCorrect={false}
+        onChangeText={message => {
+          this.setState({message: message})
+        }}
         />
         <Button
-        style={{width: '100%'}}
-        title="Click Me"
-        onPress={log}
+        title="Send Chat"
+        onPress={this.sendMessage}
         />
       </View>
     )
-  };
+  }
+}
 
 const styles = StyleSheet.create({
  screen : {
@@ -41,5 +54,5 @@ const styles = StyleSheet.create({
  }
 });
 
-export default App
+
 
