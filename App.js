@@ -1,6 +1,5 @@
 import React, { Component, useEffect, useState, setState } from 'react';
 import { View, Text, StyleSheet, TextInput, Button } from 'react-native'
-import symbolicateStackTrace from 'react-native/Libraries/Core/Devtools/symbolicateStackTrace';
 import io from 'socket.io-client';
 
 
@@ -9,39 +8,54 @@ export default class App extends Component {
   constructor(props){
     super(props);
     this.state = {
-      message: ''
+      message: '',
+      chats: []
     }
     this.sendMessage = this.sendMessage.bind(this);
   }
 
   componentDidMount(){
-    this.socket = io("http://6cc239e13b44.ngrok.io");
+    // listen to socket 
+    this.socket = io("http://4fd82e3e1347.ngrok.io");
+    // listen to message event will set state 
+    this.socket.on('message', msg => {
+      this.setState({chats: [...this.state.chats, msg]});
+    })
   }
 
    sendMessage = () => {
      console.log(this.state.message)
+    //  This emits the message event 
      this.socket.emit('message', this.state.message);
-     this.setState({message: ''})
+     this.setState({chats : [...this.state.chats, this.state.message]});
+     this.setState({message: ''});
   }
 
   render(){
     return(
-      <View style={styles.screen}>
-        <Text>Hello world</Text>
+        <View style={styles.screen}>
+          <Text>Hello world</Text>
 
-        <TextInput
-        style={{minWidth: 300, borderColor: 'black', borderWidth: 1}}
-        value={this.state.message}
-        autoCorrect={false}
-        onChangeText={message => {
-          this.setState({message: message})
-        }}
-        />
-        <Button
-        title="Send Chat"
-        onPress={this.sendMessage}
-        />
-      </View>
+          <TextInput
+          style={{minWidth: 300, borderColor: 'black', borderWidth: 1}}
+          value={this.state.message}
+          autoCorrect={false}
+          onChangeText={message => {
+            this.setState({message: message})
+          }}
+          />
+          <Button
+          title="Send Chat"
+          onPress={this.sendMessage}
+          />
+          <View>
+          {this.state.chats.map((chat) => {
+            return(
+              <Text key={chat}>{chat}fdsafsdf</Text>
+            ) 
+          })}
+          </View>
+        </View>
     )
   }
 }
